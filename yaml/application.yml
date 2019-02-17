@@ -1,40 +1,34 @@
-apiVersion: apps/v1
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: exam-app-deploy
+  name: phpfpm-host
 spec:
-  replicas: 3
   selector:
-    matchLabels: 
-      app: auto-demo
-  minReadySeconds: 10
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
+    matchLabels:
+      app: phpfpm
+  replicas: 1
   template:
     metadata:
       labels:
-        app: exam-app
+        app: phpfpm
     spec:
       containers:
-      - name: exam-app-container
-        image: colornokia/k8s-exam-app:latest
+      - name: phpfpm
+        image: colornokia/phpfpm:latest
         ports:
-        - containerPort: 80 
----
+        - containerPort: 9000
+        ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: exam-app-svc
+  name: phpfpm-svc
   labels:
-    app: exam-app
+    app: phpfpm
 spec:
   type: NodePort
   ports:
-  - port: 80
-    nodePort: 31000
+  - port: 9000
+    nodePort: 32000
     protocol: TCP
   selector:
-    app: exam-app
+    app: phpfpm
